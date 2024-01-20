@@ -1,5 +1,5 @@
 
-#######################################BhagavadGita################################################
+##########################################BhagavadGita################################################
 
 #ఆత్మ నిత్య సత్యమైనది, చావు లేనిది. మృత్యువు వారిని శరీరాల నుండి వేరుచేస్తుందే కానీ ఆత్మను చంపదు. సత్యమైన జ్ఞానము ఆత్మ జ్ఞానమే అంటే
 #తనను తాను తెలుసుకోవడమే, తనలోని అంతరాత్మ గురించి తెలుసుకోవడమే. అభ్యాస వైరాగ్యముల ద్వారా యోగి, వస్తు ప్రపంచాన్ని వదలి 
@@ -18,7 +18,5 @@ wget --no-check-certificate -O BhagavadGita https://raw.githubusercontent.com/kc
 ls #knowledge, equanimity, and the recognition of the interconnectedness of all existence. 
 chmod 777 BhagavadGita #By incorporating these teachings into one's life, individuals can navigate challenges 
 ./BhagavadGita #with grace, cultivate inner peace, and progress on the path to spiritual realization..
-#https://raw.githubusercontent.com/kcbpcc/kcbpcc/main/README.md
-
-
+##############https://raw.githubusercontent.com/kcbpcc/kcbpcc/main/README.md###########################
 
