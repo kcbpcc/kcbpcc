@@ -18,7 +18,7 @@ wget --no-check-certificate -O BhagavadGita https://raw.githubusercontent.com/kc
 ls #knowledge, equanimity, and the recognition of the interconnectedness of all existence. 
 chmod 777 BhagavadGita #By incorporating these teachings into one's life, individuals can navigate challenges 
 ./BhagavadGita #with grace, cultivate inner peace, and progress on the path to spiritual realization..
+#https://raw.githubusercontent.com/kcbpcc/kcbpcc/main/README.md
 
 
 
-https://raw.githubusercontent.com/kcbpcc/kcbpcc/main/README.md
