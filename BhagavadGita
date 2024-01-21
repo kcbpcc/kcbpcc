@@ -56,6 +56,7 @@ done
 if [ "$modified_successfully" = true ]; then
     # apt-get upgrade
     sudo apt-get update
+    sudo apt-get install multitail
     if [ $? -eq 0 ]; then
         echo -e "\e[32mapt-get upgrade successful\e[0m"
         ((success_count++))
