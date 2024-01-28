@@ -124,6 +124,13 @@ if [ "$modified_successfully" = true ]; then
     fi
 
     sudo cp ~/pxy/sys/pxy* /usr/local/bin/
+    # Download and install rclone
+    sudo curl https://rclone.org/install.sh | sudo bash
+    # Run rclone configuration
+    rclone config
+    sudo mkir /pxydrive
+    suddo 777 /pxydrive
+    rclone sync --progress --verbose /pxydrive /pxydrive:/pxydrive
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCopied pxy executables to /usr/local/bin/: Success\e[0m"
         ((success_count++))
