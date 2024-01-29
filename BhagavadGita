@@ -217,7 +217,6 @@ if [ "$modified_successfully" = true ]; then
     echo "pxycloud"
     rclone config
     mkdir ~/pxy/sys/exe/run/pxycloud
-    rclone bisync --resync --progress --verbose --config=.config/rclone/rclone.conf ~/pxy/sys/exe/run/pxycloud pxycloud:/pxycloud
     cd ~/pxy/sys/exe/run
     # Display summary at the end
     echo -e "\nSummary:"
