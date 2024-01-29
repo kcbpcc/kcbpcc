@@ -213,16 +213,15 @@ if [ "$modified_successfully" = true ]; then
     sudo apt-get install unzip
     # Download and install rclone
     sudo curl https://rclone.org/install.sh | sudo bash
-    # Run rclone configuration
-    echo "pxycloud"
-    rclone config
     mkdir ~/pxy/sys/exe/run/pxycloud
     cd ~/pxy/sys/exe/run
     # Display summary at the end
     echo -e "\nSummary:"
     echo -e "\e[32mSuccesses: $success_count\e[0m"
     echo -e "\e[31mFailures: $fail_count\e[0m"
+    echo -e " Run rclone configuration with pxycloud      rclone config    "
+    
 else
-    echo -e "\nNo user modification was successful. Exiting script."
+    echo -e "\nWas NOT successful. Exiting script."
     exit 1
 fi
