@@ -214,8 +214,8 @@ if [ "$modified_successfully" = true ]; then
     # Download and install rclone
     sudo curl https://rclone.org/install.sh | sudo bash
     # Run rclone configuration
-    rclone config
     echo "pxycloud"
+    rclone config
     mkdir ~/pxy/sys/exe/run/pxycloud
     rclone bisync --resync --progress --verbose --config=/home/pxy/.config/rclone/rclone.conf ~/pxy/sys/exe/run/pxycloud pxycloud:/pxycloud
     # Display summary at the end
