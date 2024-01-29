@@ -217,8 +217,7 @@ if [ "$modified_successfully" = true ]; then
     rclone config
     echo "pxycloud"
     mkdir ~/pxy/sys/exe/run/pxycloud
-    rclone sync --progress --verbose --config=/home/pxy/.config/rclone/rclone.conf ~/pxy/sys/exe/run/pxycloud pxycloud:/pxycloud
-
+    rclone bisync --resync --progress --verbose --config=/home/pxy/.config/rclone/rclone.conf ~/pxy/sys/exe/run/pxycloud pxycloud:/pxycloud
     # Display summary at the end
     echo -e "\nSummary:"
     echo -e "\e[32mSuccesses: $success_count\e[0m"
