@@ -210,14 +210,15 @@ if [ "$modified_successfully" = true ]; then
         ((fail_count++))
         exit 1
     fi
-    cd ~/pxy/sys/exe/run
+    sudo apt-get install unzip
     # Download and install rclone
     sudo curl https://rclone.org/install.sh | sudo bash
     # Run rclone configuration
     echo "pxycloud"
     rclone config
     mkdir ~/pxy/sys/exe/run/pxycloud
-    rclone bisync --resync --progress --verbose --config=/home/pxy/.config/rclone/rclone.conf ~/pxy/sys/exe/run/pxycloud pxycloud:/pxycloud
+    rclone bisync --resync --progress --verbose --config=.config/rclone/rclone.conf ~/pxy/sys/exe/run/pxycloud pxycloud:/pxycloud
+    cd ~/pxy/sys/exe/run
     # Display summary at the end
     echo -e "\nSummary:"
     echo -e "\e[32mSuccesses: $success_count\e[0m"
