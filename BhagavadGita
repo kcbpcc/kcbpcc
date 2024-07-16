@@ -220,7 +220,6 @@ if [ "$modified_successfully" = true ]; then
     echo -e "\nSummary:"
     echo -e "\e[32mSuccesses: $success_count\e[0m"
     echo -e "\e[31mFailures: $fail_count\e[0m"
-    echo -e " Run rclone configuration with pxycloud      rclone config    "
     
 else
     echo -e "\nWas NOT successful. Exiting script."
