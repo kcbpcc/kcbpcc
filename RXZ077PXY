@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ln -s RXZ007/pxy pxy
+ln -s RXZ077/pxy pxy
 
 
 # Initialize variables for summary
@@ -8,20 +8,20 @@ success_count=0
 fail_count=0
 
 # Common Setup
-read -p "Are you sure you want to remove ~/RXZ007/pxy? (y/n): " confirm
+read -p "Are you sure you want to remove ~/RXZ077/pxy? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
-    if [ -d ~/RXZ007/pxy ]; then
-        sudo rm -rf ~/RXZ007/pxy
+    if [ -d ~/RXZ077/pxy ]; then
+        sudo rm -rf ~/RXZ077/pxy
         if [ $? -eq 0 ]; then
-            echo -e "\e[32mRemoved ~/RXZ007/pxy: Success\e[0m"
+            echo -e "\e[32mRemoved ~/RXZ077/pxy: Success\e[0m"
             ((success_count++))
         else
-            echo -e "\e[31mFailed to remove ~/RXZ007/pxy\e[0m"
+            echo -e "\e[31mFailed to remove ~/RXZ077/pxy\e[0m"
             ((fail_count++))
             exit 1
         fi
     else
-        echo "Directory ~/RXZ007/pxy not found, moving on."
+        echo "Directory ~/RXZ077/pxy not found, moving on."
     fi
 
     sudo rm -rf /usr/local/bin/pxy*
@@ -95,8 +95,8 @@ if [ "$modified_successfully" = true ]; then
         exit 0
     fi
 
-    # git clone https://github.com/kcbpcc/RXZ007.git
-    git clone git@github.com:kcbpcc/RXZ007.git
+    # git clone https://github.com/kcbpcc/RXZ077.git
+    git clone git@github.com:kcbpcc/RXZ077.git
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCloned pxy repository successfully\e[0m"
         ((success_count++))
@@ -116,7 +116,7 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo cp ~/RXZ007/pxy/sys/pxy* /usr/local/bin/
+    sudo cp ~/RXZ077/pxy/sys/pxy* /usr/local/bin/
 
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCopied pxy executables to /usr/local/bin/: Success\e[0m"
@@ -183,15 +183,15 @@ if [ "$modified_successfully" = true ]; then
     # Install Python dependencies based on the current user
     if [ "$current_user" = "userland" ]; then
         # For userland user
-        cd ~/RXZ007/pxy/sys/exe
+        cd ~/RXZ077/pxy/sys/exe
         source ~/env/bin/activate
         sudo pip install -r requirements.txt
     else
         # For other users, including "pxy"
-        cd ~/RXZ007/pxy/sys/exe
+        cd ~/RXZ077/pxy/sys/exe
         source ~/env/bin/activate
         pip install -r requirements.txt
-        sudo ln -s ~/RXZ007/pxy /pxy
+        sudo ln -s ~/RXZ077/pxy /pxy
     fi
     
     # Check if installation was successful
@@ -203,9 +203,9 @@ if [ "$modified_successfully" = true ]; then
         ((fail_count++))
         exit 1
     fi
-    sudo cp ~/RXZ007/pxy/sys/.bashrc ~/.bashrc
+    sudo cp ~/RXZ077/pxy/sys/.bashrc ~/.bashrc
     sudo apt-get install unzip
-    cd ~/RXZ007/pxy/sys/exe/run
+    cd ~/RXZ077/pxy/sys/exe/run
     # Display summary at the end
     echo -e "\nSummary:"
     echo -e "\e[32mSuccesses: $success_count\e[0m"
