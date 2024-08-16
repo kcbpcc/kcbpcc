@@ -1,6 +1,7 @@
 #!/bin/bash
 
-ln -s TZG848 pxy
+ln -s TZG848/pxy pxy
+
 
 # Initialize variables for summary
 success_count=0
