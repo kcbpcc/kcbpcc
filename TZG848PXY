@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ln -s TZG848 pxy
+
 # Initialize variables for summary
 success_count=0
 fail_count=0
