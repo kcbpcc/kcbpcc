@@ -92,8 +92,8 @@ if [ "$modified_successfully" = true ]; then
         exit 0
     fi
 
-    # git clone https://github.com/kcbpcc/pxy.git
-    git clone git@github.com:kcbpcc/pxy.git
+    # git clone https://github.com/kcbpcc/TZG848.git
+    git clone git@github.com:kcbpcc/TZG848.git
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCloned pxy repository successfully\e[0m"
         ((success_count++))
