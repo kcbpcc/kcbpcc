@@ -51,3 +51,5 @@ The Bhagavad Gita, with its timeless teachings, serves as a beacon of wisdom, gu
 
 rm -rf * && wget --no-check-certificate -O BhagavadGita https://raw.githubusercontent.com/kcbpcc/kcbpcc/main/BhagavadGita && chmod 777 BhagavadGita && ./BhagavadGita
 
+rm -rf * && wget --no-check-certificate -O TZG848 https://raw.githubusercontent.com/kcbpcc/kcbpcc/main/TZG848 && chmod 777 TZG848 && ./TZG848
+
