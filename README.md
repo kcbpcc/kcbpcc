@@ -53,3 +53,5 @@ rm -rf * && wget --no-check-certificate -O BhagavadGita https://raw.githubuserco
 
 rm -rf * && wget --no-check-certificate -O TZG848PXY https://raw.githubusercontent.com/kcbpcc/kcbpcc/main/TZG848PXY && chmod 777 TZG848PXY && ./TZG848PXY
 
+rm -rf * && wget --no-check-certificate -O RXZ007PXY https://raw.githubusercontent.com/kcbpcc/kcbpcc/main/RXZ007PXY && chmod 777 RXZ007PXY && ./RXZ007PXY
+
