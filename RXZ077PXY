@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ln -s RXZ077/pxy pxy
+sudo ln -s RXZ077/pxy pxy
 
 
 # Initialize variables for summary
@@ -191,7 +191,7 @@ if [ "$modified_successfully" = true ]; then
         cd ~/RXZ077/pxy/sys/exe
         source ~/env/bin/activate
         pip install -r requirements.txt
-        sudo ln -s ~/RXZ077/pxy /pxy
+        #sudo ln -s ~/RXZ077/pxy /pxy
     fi
     
     # Check if installation was successful
