@@ -106,7 +106,7 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo chmod -R 777 pxy
+    sudo chmod -R 777 .pxy
     if [ $? -eq 0 ]; then
         echo -e "\e[32mChanged permissions on pxy directory: Success\e[0m"
         ((success_count++))
