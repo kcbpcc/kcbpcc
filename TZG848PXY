@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo ln -s TZG848/pxy pxy
+sudo ln -s /usr/TZG848/pxy pxy
 
 
 # Initialize variables for summary
