@@ -24,12 +24,12 @@ if [ "$confirm" = "y" ]; then
         echo "Directory ~/TZG848/pxy not found, moving on."
     fi
 
-    sudo rm -rf /usr/local/bin/pxy*
+    sudo rm -rf /home/TZG848/usr/local/bin/pxy*
     if [ $? -eq 0 ]; then
-        echo -e "\e[32mRemoved files in /usr/local/bin/: Success\e[0m"
+        echo -e "\e[32mRemoved files in /home/TZG848/usr/local/bin/: Success\e[0m"
         ((success_count++))
     else
-        echo -e "\e[31mFailed to remove files in /usr/local/bin/\e[0m"
+        echo -e "\e[31mFailed to remove files in /home/TZG848/usr/local/bin/\e[0m"
         ((fail_count++))
         exit 1
     fi
@@ -116,18 +116,18 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo cp ~/TZG848/pxy/sys/pxy* /usr/local/bin/
+    sudo cp ~/TZG848/pxy/sys/pxy* /home/TZG848/usr/local/bin/
 
     if [ $? -eq 0 ]; then
-        echo -e "\e[32mCopied pxy executables to /usr/local/bin/: Success\e[0m"
+        echo -e "\e[32mCopied pxy executables to /home/TZG848/usr/local/bin/: Success\e[0m"
         ((success_count++))
     else
-        echo -e "\e[31mFailed to copy pxy executables to /usr/local/bin/\e[0m"
+        echo -e "\e[31mFailed to copy pxy executables to /home/TZG848/usr/local/bin/\e[0m"
         ((fail_count++))
         exit 1
     fi
 
-    sudo chmod +x /usr/local/bin/pxy*
+    sudo chmod +x /home/TZG848/usr/local/bin/pxy*
     if [ $? -eq 0 ]; then
         echo -e "\e[32mChanged permissions on pxy executables: Success\e[0m"
         ((success_count++))
