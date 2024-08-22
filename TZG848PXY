@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo ln -s TZG848 pxy
+sudo ln -s TZG848/pxy pxy
 
 
 # Initialize variables for summary
@@ -8,28 +8,28 @@ success_count=0
 fail_count=0
 
 # Common Setup
-read -p "Are you sure you want to remove ~/TZG848? (y/n): " confirm
+read -p "Are you sure you want to remove ~/TZG848/pxy? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
-    if [ -d ~/TZG848 ]; then
-        sudo rm -rf ~/TZG848
+    if [ -d ~/TZG848/pxy ]; then
+        sudo rm -rf ~/TZG848/pxy
         if [ $? -eq 0 ]; then
-            echo -e "\e[32mRemoved ~/TZG848: Success\e[0m"
+            echo -e "\e[32mRemoved ~/TZG848/pxy: Success\e[0m"
             ((success_count++))
         else
-            echo -e "\e[31mFailed to remove ~/TZG848\e[0m"
+            echo -e "\e[31mFailed to remove ~/TZG848/pxy\e[0m"
             ((fail_count++))
             exit 1
         fi
     else
-        echo "Directory ~/TZG848 not found, moving on."
+        echo "Directory ~/TZG848/pxy not found, moving on."
     fi
 
-    sudo rm -rf /home/TZG848/usr/local/bin/pxy*
+    sudo rm -rf /usr/local/bin/pxy*
     if [ $? -eq 0 ]; then
-        echo -e "\e[32mRemoved files in /home/TZG848/usr/local/bin/: Success\e[0m"
+        echo -e "\e[32mRemoved files in /usr/local/bin/: Success\e[0m"
         ((success_count++))
     else
-        echo -e "\e[31mFailed to remove files in /home/TZG848/usr/local/bin/\e[0m"
+        echo -e "\e[31mFailed to remove files in /usr/local/bin/\e[0m"
         ((fail_count++))
         exit 1
     fi
@@ -116,18 +116,18 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo cp ~/TZG848/sys/pxy* /home/TZG848/usr/local/bin/
+    sudo cp ~/TZG848/pxy/sys/pxy* /usr/local/bin/
 
     if [ $? -eq 0 ]; then
-        echo -e "\e[32mCopied pxy executables to /home/TZG848/usr/local/bin/: Success\e[0m"
+        echo -e "\e[32mCopied pxy executables to /usr/local/bin/: Success\e[0m"
         ((success_count++))
     else
-        echo -e "\e[31mFailed to copy pxy executables to /home/TZG848/usr/local/bin/\e[0m"
+        echo -e "\e[31mFailed to copy pxy executables to /usr/local/bin/\e[0m"
         ((fail_count++))
         exit 1
     fi
 
-    sudo chmod +x /home/TZG848/usr/local/bin/pxy*
+    sudo chmod +x /usr/local/bin/pxy*
     if [ $? -eq 0 ]; then
         echo -e "\e[32mChanged permissions on pxy executables: Success\e[0m"
         ((success_count++))
@@ -183,15 +183,15 @@ if [ "$modified_successfully" = true ]; then
     # Install Python dependencies based on the current user
     if [ "$current_user" = "userland" ]; then
         # For userland user
-        cd ~/TZG848/sys/exe
+        cd ~/TZG848/pxy/sys/exe
         source ~/env/bin/activate
         sudo pip install -r requirements.txt
     else
         # For other users, including "pxy"
-        cd ~/TZG848/sys/exe
+        cd ~/TZG848/pxy/sys/exe
         source ~/env/bin/activate
         pip install -r requirements.txt
-        #sudo ln -s ~/TZG848 /pxy
+        #sudo ln -s ~/TZG848/pxy /pxy
     fi
     
     # Check if installation was successful
@@ -203,9 +203,9 @@ if [ "$modified_successfully" = true ]; then
         ((fail_count++))
         exit 1
     fi
-    sudo cp ~/TZG848/sys/.bashrc ~/.bashrc
+    sudo cp ~/TZG848/pxy/sys/.bashrc ~/.bashrc
     sudo apt-get install unzip
-    cd ~/TZG848/sys/exe/run
+    cd ~/TZG848/pxy/sys/exe/run
     # Display summary at the end
     echo -e "\nSummary:"
     echo -e "\e[32mSuccesses: $success_count\e[0m"
