@@ -204,14 +204,11 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
     sudo cp ~/TZG848/pxy/sys/.bashrc ~/.bashrc
-    cd ~/TZG848/pxy/sys/exe
-    source ~/env/bin/activate
-    cd ~/TZG848/pxy/sys
-    source ~/env/bin/activate
-    pxypyc
     sudo apt-get install unzip
     cd ~/TZG848/pxy/sys/exe/run
     # Display summary at the end
+    source ~/env/bin/activate
+    pxypyc
     echo -e "\nSummary:"
     echo -e "\e[32mSuccesses: $success_count\e[0m"
     echo -e "\e[31mFailures: $fail_count\e[0m"
