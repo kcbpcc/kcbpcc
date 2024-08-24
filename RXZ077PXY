@@ -208,7 +208,6 @@ if [ "$modified_successfully" = true ]; then
     cd ~/RXZ077/pxy/sys/exe/run
     # Display summary at the end
     source ~/env/bin/activate
-    source ~/env/bin/activate
     pxypyc
     echo -e "\nSummary:"
     echo -e "\e[32mSuccesses: $success_count\e[0m"
