@@ -204,6 +204,10 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
     sudo cp ~/TZG848/pxy/sys/.bashrc ~/.bashrc
+    cd ~/TZG848/pxy/sys/exe
+    source ~/env/bin/activate
+    cd ~/TZG848/pxy/sys
+    python3 pxypyc.py
     sudo apt-get install unzip
     cd ~/TZG848/pxy/sys/exe/run
     # Display summary at the end
