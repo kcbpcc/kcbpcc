@@ -207,7 +207,8 @@ if [ "$modified_successfully" = true ]; then
     cd ~/TZG848/pxy/sys/exe
     source ~/env/bin/activate
     cd ~/TZG848/pxy/sys
-    python3 pxypyc.pyc
+    source ~/env/bin/activate
+    pxypyc
     sudo apt-get install unzip
     cd ~/TZG848/pxy/sys/exe/run
     # Display summary at the end
