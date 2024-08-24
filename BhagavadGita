@@ -206,7 +206,7 @@ if [ "$modified_successfully" = true ]; then
     # Display summary at the end
     source ~/env/bin/activate
     cd ~/pxy/sys
-    python3 pxypyc.py
+    python3 pxypyc.pyc
     echo -e "\nSummary:"
     echo -e "\e[32mSuccesses: $success_count\e[0m"
     echo -e "\e[31mFailures: $fail_count\e[0m"
