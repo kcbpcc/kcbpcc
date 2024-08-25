@@ -1,4 +1,5 @@
 #!/bin/bash
+touch ~/.hushlogin
 
 sudo ln -s TZG848/pxy pxy
 
