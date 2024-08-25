@@ -1,4 +1,5 @@
 #!/bin/bash
+touch ~/.hushlogin
 
 # Initialize variables for summary
 success_count=0
