@@ -6,20 +6,20 @@ success_count=0
 fail_count=0
 
 # Common Setup
-read -p "Are you sure you want to remove /usr/pxy? (y/n): " confirm
+read -p "Are you sure you want to remove ~/pxy? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
-    if [ -d /usr/pxy ]; then
-        sudo rm -rf /usr/pxy
+    if [ -d ~/pxy ]; then
+        sudo rm -rf ~/pxy
         if [ $? -eq 0 ]; then
-            echo -e "\e[32mRemoved /usr/pxy: Success\e[0m"
+            echo -e "\e[32mRemoved ~/pxy: Success\e[0m"
             ((success_count++))
         else
-            echo -e "\e[31mFailed to remove /usr/pxy\e[0m"
+            echo -e "\e[31mFailed to remove ~/pxy\e[0m"
             ((fail_count++))
             exit 1
         fi
     else
-        echo "Directory /usr/pxy not found, moving on."
+        echo "Directory ~/pxy not found, moving on."
     fi
 
     sudo rm -rf /usr/local/bin/pxy*
@@ -92,7 +92,7 @@ if [ "$modified_successfully" = true ]; then
         echo "Exiting script."
         exit 0
     fi
-    cd /usr
+
     # git clone https://github.com/kcbpcc/pxy.git
     git clone git@github.com:kcbpcc/pxy.git
     if [ $? -eq 0 ]; then
@@ -114,7 +114,7 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo cp /usr/pxy/sys/pxy* /usr/local/bin/
+    sudo cp ~/pxy/sys/pxy* /usr/local/bin/
 
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCopied pxy executables to /usr/local/bin/: Success\e[0m"
@@ -181,15 +181,15 @@ if [ "$modified_successfully" = true ]; then
     # Install Python dependencies based on the current user
     if [ "$current_user" = "userland" ]; then
         # For userland user
-        cd /usr/pxy/sys/exe
+        cd ~/pxy/sys/exe
         source ~/env/bin/activate
         sudo pip install -r requirements.txt
     else
         # For other users, including "pxy"
-        cd /usr/pxy/sys/exe
+        cd ~/pxy/sys/exe
         source ~/env/bin/activate
         pip install -r requirements.txt
-        sudo ln -s /usr/pxy /pxy
+        sudo ln -s ~/pxy /pxy
     fi
     
     # Check if installation was successful
@@ -201,9 +201,9 @@ if [ "$modified_successfully" = true ]; then
         ((fail_count++))
         exit 1
     fi
-    sudo cp /usr/pxy/sys/.bashrc ~/.bashrc
+    sudo cp ~/pxy/sys/.bashrc ~/.bashrc
     sudo apt-get install unzip
-    cd /usr/pxy/sys/exe/run
+    cd ~/pxy/sys/exe/run
     # Display summary at the end
     source ~/env/bin/activate
     pxypyc
@@ -215,4 +215,3 @@ else
     echo -e "\nWas NOT successful. Exiting script."
     exit 1
 fi
-
