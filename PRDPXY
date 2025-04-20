@@ -1,7 +1,7 @@
 #!/bin/bash
 touch ~/.hushlogin
 
-sudo ln -s TZG848/pxy pxy
+sudo ln -s PRD/pxy pxy
 
 
 # Initialize variables for summary
@@ -9,20 +9,20 @@ success_count=0
 fail_count=0
 
 # Common Setup
-read -p "Are you sure you want to remove ~/TZG848/pxy? (y/n): " confirm
+read -p "Are you sure you want to remove ~/PRD/pxy? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
-    if [ -d ~/TZG848/pxy ]; then
-        sudo rm -rf ~/TZG848/pxy
+    if [ -d ~/PRD/pxy ]; then
+        sudo rm -rf ~/PRD/pxy
         if [ $? -eq 0 ]; then
-            echo -e "\e[32mRemoved ~/TZG848/pxy: Success\e[0m"
+            echo -e "\e[32mRemoved ~/PRD/pxy: Success\e[0m"
             ((success_count++))
         else
-            echo -e "\e[31mFailed to remove ~/TZG848/pxy\e[0m"
+            echo -e "\e[31mFailed to remove ~/PRD/pxy\e[0m"
             ((fail_count++))
             exit 1
         fi
     else
-        echo "Directory ~/TZG848/pxy not found, moving on."
+        echo "Directory ~/PRD/pxy not found, moving on."
     fi
 
     sudo rm -rf /usr/local/bin/pxy*
@@ -96,8 +96,8 @@ if [ "$modified_successfully" = true ]; then
         exit 0
     fi
 
-    # git clone https://github.com/kcbpcc/TZG848.git
-    git clone git@github.com:kcbpcc/TZG848.git
+    # git clone https://github.com/kcbpcc/PRD.git
+    git clone git@github.com:kcbpcc/PRD.git
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCloned pxy repository successfully\e[0m"
         ((success_count++))
@@ -117,7 +117,7 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo cp ~/TZG848/pxy/sys/pxy* /usr/local/bin/
+    sudo cp ~/PRD/pxy/sys/pxy* /usr/local/bin/
 
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCopied pxy executables to /usr/local/bin/: Success\e[0m"
@@ -184,15 +184,15 @@ if [ "$modified_successfully" = true ]; then
     # Install Python dependencies based on the current user
     if [ "$current_user" = "userland" ]; then
         # For userland user
-        cd ~/TZG848/pxy/sys/exe
+        cd ~/PRD/pxy/sys/exe
         source ~/env/bin/activate
         sudo pip install -r requirements.txt
     else
         # For other users, including "pxy"
-        cd ~/TZG848/pxy/sys/exe
+        cd ~/PRD/pxy/sys/exe
         source ~/env/bin/activate
         pip install -r requirements.txt
-        #sudo ln -s ~/TZG848/pxy /pxy
+        #sudo ln -s ~/PRD/pxy /pxy
     fi
     
     # Check if installation was successful
@@ -204,9 +204,9 @@ if [ "$modified_successfully" = true ]; then
         ((fail_count++))
         exit 1
     fi
-    sudo cp ~/TZG848/pxy/sys/.bashrc ~/.bashrc
+    sudo cp ~/PRD/pxy/sys/.bashrc ~/.bashrc
     sudo apt-get install unzip
-    cd ~/TZG848/pxy/sys/exe/run
+    cd ~/PRD/pxy/sys/exe/run
     # Display summary at the end
     source ~/env/bin/activate
     pxypyc
