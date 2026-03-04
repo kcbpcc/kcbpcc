@@ -1,8 +1,7 @@
-
 #!/bin/bash
 touch ~/.hushlogin
 
-sudo ln -s V1L58 pxy
+sudo ln -s V1L58/pxy pxy
 
 
 # Initialize variables for summary
@@ -10,23 +9,23 @@ success_count=0
 fail_count=0
 
 # Common Setup
-read -p "Are you sure you want to remove ~/V1L58? (y/n): " confirm
+read -p "Are you sure you want to remove ~/V1L58/pxy? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
-    if [ -d ~/V1L58 ]; then
-        sudo rm -rf ~/V1L58
+    if [ -d ~/V1L58/pxy ]; then
+        sudo rm -rf ~/V1L58/pxy
         if [ $? -eq 0 ]; then
-            echo -e "\e[32mRemoved ~/V1L58: Success\e[0m"
+            echo -e "\e[32mRemoved ~/V1L58/pxy: Success\e[0m"
             ((success_count++))
         else
-            echo -e "\e[31mFailed to remove ~/V1L58\e[0m"
+            echo -e "\e[31mFailed to remove ~/V1L58/pxy\e[0m"
             ((fail_count++))
             exit 1
         fi
     else
-        echo "Directory ~/V1L58 not found, moving on."
+        echo "Directory ~/V1L58/pxy not found, moving on."
     fi
 
-    sudo rm -rf /usr/local/bin/_*
+    sudo rm -rf /usr/local/bin/pxy*
     if [ $? -eq 0 ]; then
         echo -e "\e[32mRemoved files in /usr/local/bin/: Success\e[0m"
         ((success_count++))
@@ -118,7 +117,7 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo cp ~/V1L58/sh/*.sh /usr/local/bin/
+    sudo cp ~/V1L58/pxy/sys/pxy* /usr/local/bin/
 
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCopied pxy executables to /usr/local/bin/: Success\e[0m"
@@ -129,7 +128,7 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo chmod +x /usr/local/bin/*
+    sudo chmod +x /usr/local/bin/pxy*
     if [ $? -eq 0 ]; then
         echo -e "\e[32mChanged permissions on pxy executables: Success\e[0m"
         ((success_count++))
@@ -185,15 +184,15 @@ if [ "$modified_successfully" = true ]; then
     # Install Python dependencies based on the current user
     if [ "$current_user" = "userland" ]; then
         # For userland user
-        cd ~/V1L58/sh/exe
+        cd ~/V1L58/pxy/sys/exe
         source ~/env/bin/activate
-        inst.sh
+        sudo pip install -r requirements.txt
     else
         # For other users, including "pxy"
-        cd ~/V1L58/sh/exe
+        cd ~/V1L58/pxy/sys/exe
         source ~/env/bin/activate
-        inst.sh
-        #sudo ln -s ~/V1L58 /pxy
+        pip install -r requirements.txt
+        #sudo ln -s ~/V1L58/pxy /pxy
     fi
     
     # Check if installation was successful
@@ -205,9 +204,9 @@ if [ "$modified_successfully" = true ]; then
         ((fail_count++))
         exit 1
     fi
-    sudo cp ~/V1L58/sh/.bashrc ~/.bashrc
+    sudo cp ~/V1L58/pxy/sys/.bashrc ~/.bashrc
     sudo apt-get install unzip
-    cd ~/V1L58/sh/py
+    cd ~/V1L58/pxy/sys/exe/run
     # Display summary at the end
     source ~/env/bin/activate
     pxypyc
@@ -217,6 +216,5 @@ if [ "$modified_successfully" = true ]; then
     
 else
     echo -e "\nWas NOT successful. Exiting script."
-    source ~/neo_env/bin/activate
     exit 1
 fi
