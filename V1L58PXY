@@ -128,8 +128,7 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo find ~/V1L58/pxy/sys -maxdepth 1 -type f -exec cp -t /usr/local/bin/ {} + && sudo find /usr/local/bin -maxdepth 1 -type f -exec chmod +x {} +
-    if [ $? -eq 0 ]; then
+    sudo find ~/V1L58/pxy/sys -maxdepth 1 -type f -exec cp -t /usr/local/bin/ {} + \ && sudo find /usr/local/bin -maxdepth 1 -type f -exec chmod +x {} +    if [ $? -eq 0 ]; then
         echo -e "\e[32mChanged permissions on pxy executables: Success\e[0m"
         ((success_count++))
     else
