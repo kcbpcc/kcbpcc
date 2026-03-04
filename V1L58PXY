@@ -2,7 +2,7 @@
 #!/bin/bash
 touch ~/.hushlogin
 
-sudo ln -s V1L58/pxy pxy
+sudo ln -s V1L58 pxy
 
 
 # Initialize variables for summary
@@ -10,20 +10,20 @@ success_count=0
 fail_count=0
 
 # Common Setup
-read -p "Are you sure you want to remove ~/V1L58/pxy? (y/n): " confirm
+read -p "Are you sure you want to remove ~/V1L58? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
-    if [ -d ~/V1L58/pxy ]; then
-        sudo rm -rf ~/V1L58/pxy
+    if [ -d ~/V1L58 ]; then
+        sudo rm -rf ~/V1L58
         if [ $? -eq 0 ]; then
-            echo -e "\e[32mRemoved ~/V1L58/pxy: Success\e[0m"
+            echo -e "\e[32mRemoved ~/V1L58: Success\e[0m"
             ((success_count++))
         else
-            echo -e "\e[31mFailed to remove ~/V1L58/pxy\e[0m"
+            echo -e "\e[31mFailed to remove ~/V1L58\e[0m"
             ((fail_count++))
             exit 1
         fi
     else
-        echo "Directory ~/V1L58/pxy not found, moving on."
+        echo "Directory ~/V1L58 not found, moving on."
     fi
 
     sudo rm -rf /usr/local/bin/pxy*
@@ -193,7 +193,7 @@ if [ "$modified_successfully" = true ]; then
         cd ~/V1L58/sh/exe
         source ~/env/bin/activate
         inst.sh
-        #sudo ln -s ~/V1L58/pxy /pxy
+        #sudo ln -s ~/V1L58 /pxy
     fi
     
     # Check if installation was successful
