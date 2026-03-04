@@ -48,9 +48,9 @@ sudo apt-get install -y multitail git unzip python3-venv python3-pip || exit 1
 # SSH Key Setup
 # ----------------------------------
 
-if [ ! -f "/usr/.ssh/id_rsa.pub" ]; then
+if [ ! -f "/usr/V1L58/.ssh/id_rsa.pub" ]; then
     ssh-keygen -t rsa -b 4096 -C "pxy.kcbpcc@gmail.com"
-    cat "/usr/.ssh/id_rsa.pub"
+    cat "/usr/V1L58/.ssh/id_rsa.pub"
 fi
 
 read -p "Continue with git clone? (y/n): " confirm
