@@ -10,26 +10,55 @@ ENV_DIR="$PXY_DIR/env"
 success_count=0
 fail_count=0
 
-echo "Maintaining structure:"
+echo "======================================"
+echo "Maintaining Structure:"
 echo "$PXY_DIR"
 echo "$RUN_DIR"
-echo ""
+echo "======================================"
 
+# ----------------------------------
+# REMOVE OLD INSTALL
+# ----------------------------------
 read -p "Remove existing ~/V1L58/pxy ? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
     sudo rm -rf "$PXY_DIR"
     sudo rm -rf /usr/local/bin/pxy*
 fi
 
-# -----------------------------
-# System packages
-# -----------------------------
+# ----------------------------------
+# SYSTEM PACKAGES
+# ----------------------------------
 sudo apt-get update
 sudo apt-get install -y git multitail python3-venv python3-pip unzip
 
-# -----------------------------
-# Clone repository
-# -----------------------------
+# ----------------------------------
+# SSH KEY SETUP
+# ----------------------------------
+SSH_KEY="$HOME/.ssh/id_ed25519"
+
+if [ ! -f "$SSH_KEY" ]; then
+    echo "Generating SSH key..."
+    ssh-keygen -t ed25519 -C "pxy.kcbpcc@gmail.com" -f "$SSH_KEY" -N ""
+fi
+
+eval "$(ssh-agent -s)"
+ssh-add "$SSH_KEY"
+
+echo ""
+echo "======================================"
+echo "COPY THIS KEY AND ADD TO GITHUB:"
+echo "======================================"
+cat "$SSH_KEY.pub"
+echo "======================================"
+echo ""
+echo "Go to GitHub → Settings → SSH and GPG Keys → New SSH Key"
+read -p "Press ENTER after adding key to GitHub..."
+
+ssh -T git@github.com
+
+# ----------------------------------
+# CLONE REPOSITORY
+# ----------------------------------
 cd "$HOME"
 sudo git clone git@github.com:kcbpcc/V1L58.git
 
@@ -40,28 +69,22 @@ fi
 
 ((success_count++))
 
-# -----------------------------
-# Give full permissions
-# -----------------------------
+# ----------------------------------
+# PERMISSIONS (777 MODE)
+# ----------------------------------
 sudo chmod -R 777 "$BASE_DIR"
 
-# -----------------------------
-# Create virtual environment
-# -----------------------------
+# ----------------------------------
+# CREATE VENV INSIDE pxy
+# ----------------------------------
 sudo python3 -m venv "$ENV_DIR"
-
-if [ $? -ne 0 ]; then
-    echo "Venv creation failed"
-    exit 1
-fi
-
 sudo chmod -R 777 "$ENV_DIR"
 
 ((success_count++))
 
-# -----------------------------
-# Activate and install
-# -----------------------------
+# ----------------------------------
+# INSTALL PYTHON DEPENDENCIES
+# ----------------------------------
 source "$ENV_DIR/bin/activate"
 
 sudo pip install --upgrade pip
@@ -76,33 +99,32 @@ fi
 
 ((success_count++))
 
-# -----------------------------
-# Install pxy executables
-# -----------------------------
+# ----------------------------------
+# INSTALL EXECUTABLES
+# ----------------------------------
 sudo cp "$PXY_DIR/sys/pxy"* /usr/local/bin/
 sudo chmod +x /usr/local/bin/pxy*
 sudo chmod -R 777 /usr/local/bin/pxy*
 
 ((success_count++))
 
-# -----------------------------
-# Final permissions
-# -----------------------------
+# ----------------------------------
+# FINAL STEP
+# ----------------------------------
 sudo chmod -R 777 "$PXY_DIR"
 
-# -----------------------------
-# Go to run directory
-# -----------------------------
 cd "$RUN_DIR"
 
+source "$ENV_DIR/bin/activate"
+
 echo ""
-echo "---------------------------------"
-echo "STRUCTURE READY (777 MODE)"
-echo "---------------------------------"
-echo "Base     : $PXY_DIR"
-echo "Run path : $RUN_DIR"
-echo "Venv     : $ENV_DIR"
-echo "---------------------------------"
+echo "======================================"
+echo "INSTALL COMPLETE (777 MODE)"
+echo "======================================"
+echo "Base Directory : $PXY_DIR"
+echo "Run Directory  : $RUN_DIR"
+echo "Virtual Env    : $ENV_DIR"
+echo "======================================"
 echo "Success: $success_count"
 echo "Fail   : $fail_count"
-echo ""
+echo "======================================"
