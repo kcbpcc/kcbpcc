@@ -6,19 +6,19 @@ success_count=0
 fail_count=0
 
 echo "--------------------------------------"
-read -p "Remove ~/V1L58/pxy and executables? (y/n): " confirm
+read -p "Remove /usr/V1L58/pxy and executables? (y/n): " confirm
 echo "--------------------------------------"
 
 if [ "$confirm" = "y" ]; then
 
     # Remove project directory (HOME → no sudo needed)
-    if [ -d "$HOME/V1L58/pxy" ]; then
-        rm -rf "$HOME/V1L58/pxy"
+    if [ -d "/usr/V1L58/pxy" ]; then
+        rm -rf "/usr/V1L58/pxy"
         if [ $? -eq 0 ]; then
-            echo -e "\e[32mRemoved ~/V1L58/pxy\e[0m"
+            echo -e "\e[32mRemoved /usr/V1L58/pxy\e[0m"
             ((success_count++))
         else
-            echo -e "\e[31mFailed removing ~/V1L58/pxy\e[0m"
+            echo -e "\e[31mFailed removing /usr/V1L58/pxy\e[0m"
             ((fail_count++))
             exit 1
         fi
@@ -48,9 +48,9 @@ sudo apt-get install -y multitail git unzip python3-venv python3-pip || exit 1
 # SSH Key Setup
 # ----------------------------------
 
-if [ ! -f "$HOME/.ssh/id_rsa.pub" ]; then
+if [ ! -f "/usr/.ssh/id_rsa.pub" ]; then
     ssh-keygen -t rsa -b 4096 -C "pxy.kcbpcc@gmail.com"
-    cat "$HOME/.ssh/id_rsa.pub"
+    cat "/usr/.ssh/id_rsa.pub"
 fi
 
 read -p "Continue with git clone? (y/n): " confirm
@@ -76,7 +76,7 @@ fi
 # Copy Files to /usr/local/bin
 # ----------------------------------
 
-sudo find "$HOME/V1L58/pxy/sys" -maxdepth 1 -type f -exec cp -t /usr/local/bin/ {} +
+sudo find "/usr/V1L58/pxy/sys" -maxdepth 1 -type f -exec cp -t /usr/local/bin/ {} +
 if [ $? -eq 0 ]; then
     echo -e "\e[32mCopied executables to /usr/local/bin\e[0m"
     ((success_count++))
@@ -104,7 +104,7 @@ fi
 # Python Virtual Environment
 # ----------------------------------
 
-python3 -m venv "$HOME/V1L58"
+python3 -m venv "/usr/V1L58/env"
 if [ $? -eq 0 ]; then
     echo -e "\e[32mVirtual environment created\e[0m"
     ((success_count++))
@@ -114,11 +114,11 @@ else
     exit 1
 fi
 
-source "$HOME/V1L58/bin/activate"
+source "/usr/V1L58/env/bin/activate"
 
 pip install --upgrade pip
 
-cd "$HOME/V1L58/pxy/sys/exe" || exit 1
+cd "/usr/V1L58/pxy/sys/exe" || exit 1
 pip install -r requirements.txt
 
 if [ $? -eq 0 ]; then
@@ -134,16 +134,16 @@ fi
 # Bash Config
 # ----------------------------------
 
-if [ -f "$HOME/V1L58/pxy/sys/.bashrc" ]; then
-    cp "$HOME/V1L58/pxy/sys/.bashrc" "$HOME/.bashrc"
+if [ -f "/usr/V1L58/pxy/sys/.bashrc" ]; then
+    cp "/usr/V1L58/pxy/sys/.bashrc" "/usr/.bashrc"
 fi
 
 # ----------------------------------
 # Final Run
 # ----------------------------------
 
-cd "$HOME/V1L58/pxy/sys/exe/run" || exit 1
-source "$HOME/V1L58/bin/activate"
+cd "/usr/V1L58/pxy/sys/exe/run" || exit 1
+source "/usr/V1L58/bin/activate"
 
 if command -v pxypyc >/dev/null 2>&1; then
     pxypyc
