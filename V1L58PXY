@@ -11,7 +11,7 @@ echo "--------------------------------------"
 
 if [ "$confirm" = "y" ]; then
 
-    # Remove project directory (inside HOME → no sudo needed)
+    # Remove project directory (HOME → no sudo needed)
     if [ -d "$HOME/V1L58/pxy" ]; then
         rm -rf "$HOME/V1L58/pxy"
         if [ $? -eq 0 ]; then
@@ -45,16 +45,18 @@ sudo apt-get install -y multitail git unzip python3-venv python3-pip || exit 1
 ((success_count++))
 
 # ----------------------------------
-# SSH Key
+# SSH Key Setup
 # ----------------------------------
 
-if [ ! -f ~/.ssh/id_rsa.pub ]; then
+if [ ! -f "$HOME/.ssh/id_rsa.pub" ]; then
     ssh-keygen -t rsa -b 4096 -C "pxy.kcbpcc@gmail.com"
-    cat ~/.ssh/id_rsa.pub
+    cat "$HOME/.ssh/id_rsa.pub"
 fi
 
 read -p "Continue with git clone? (y/n): " confirm
-[ "$confirm" != "y" ] && exit 0
+if [ "$confirm" != "y" ]; then
+    exit 0
+fi
 
 # ----------------------------------
 # Clone Repository
@@ -75,7 +77,6 @@ fi
 # ----------------------------------
 
 sudo find "$HOME/V1L58/pxy/sys" -maxdepth 1 -type f -exec cp -t /usr/local/bin/ {} +
-
 if [ $? -eq 0 ]; then
     echo -e "\e[32mCopied executables to /usr/local/bin\e[0m"
     ((success_count++))
@@ -86,11 +87,10 @@ else
 fi
 
 # ----------------------------------
-# Set 777 Permissions (as requested)
+# Set 777 Permissions (FILES ONLY)
 # ----------------------------------
 
 sudo find /usr/local/bin -maxdepth 1 -type f -exec chmod 777 {} +
-
 if [ $? -eq 0 ]; then
     echo -e "\e[32mSet 777 permissions on executables\e[0m"
     ((success_count++))
@@ -134,7 +134,9 @@ fi
 # Bash Config
 # ----------------------------------
 
-cp "$HOME/V1L58/pxy/sys/.bashrc" "$HOME/.bashrc"
+if [ -f "$HOME/V1L58/pxy/sys/.bashrc" ]; then
+    cp "$HOME/V1L58/pxy/sys/.bashrc" "$HOME/.bashrc"
+fi
 
 # ----------------------------------
 # Final Run
