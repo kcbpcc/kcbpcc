@@ -118,7 +118,7 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo cp ~/V1L58/sh/pxy* /usr/local/bin/
+    sudo cp ~/V1L58/sh/*.sh /usr/local/bin/
 
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCopied pxy executables to /usr/local/bin/: Success\e[0m"
