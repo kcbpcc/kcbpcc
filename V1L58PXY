@@ -21,18 +21,18 @@ echo "======================================"
 # ----------------------------------
 read -p "Remove existing ~/V1L58/pxy ? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
-    sudo rm -rf "$PXY_DIR"
+    rm -rf "$PXY_DIR"
     sudo rm -rf /usr/local/bin/pxy*
 fi
 
 # ----------------------------------
-# SYSTEM PACKAGES
+# SYSTEM PACKAGES (sudo needed)
 # ----------------------------------
 sudo apt-get update
 sudo apt-get install -y git multitail python3-venv python3-pip unzip
 
 # ----------------------------------
-# SSH KEY SETUP
+# SSH KEY SETUP (user level)
 # ----------------------------------
 SSH_KEY="$HOME/.ssh/id_ed25519"
 
@@ -51,16 +51,16 @@ echo "======================================"
 cat "$SSH_KEY.pub"
 echo "======================================"
 echo ""
-echo "Go to GitHub → Settings → SSH and GPG Keys → New SSH Key"
-read -p "Press ENTER after adding key to GitHub..."
+echo "Add it in GitHub → Settings → SSH & GPG keys"
+read -p "Press ENTER after adding key..."
 
 ssh -T git@github.com
 
 # ----------------------------------
-# CLONE REPOSITORY
+# CLONE REPO (NO sudo here)
 # ----------------------------------
 cd "$HOME"
-sudo git clone git@github.com:kcbpcc/V1L58.git
+git clone git@github.com:kcbpcc/V1L58.git
 
 if [ $? -ne 0 ]; then
     echo "Clone failed"
@@ -70,27 +70,27 @@ fi
 ((success_count++))
 
 # ----------------------------------
-# PERMISSIONS (777 MODE)
+# PERMISSIONS (777 mode as requested)
 # ----------------------------------
-sudo chmod -R 777 "$BASE_DIR"
+chmod -R 777 "$BASE_DIR"
 
 # ----------------------------------
-# CREATE VENV INSIDE pxy
+# CREATE VENV (NO sudo)
 # ----------------------------------
-sudo python3 -m venv "$ENV_DIR"
-sudo chmod -R 777 "$ENV_DIR"
+python3 -m venv "$ENV_DIR"
+chmod -R 777 "$ENV_DIR"
 
 ((success_count++))
 
 # ----------------------------------
-# INSTALL PYTHON DEPENDENCIES
+# INSTALL PYTHON DEPENDENCIES (NO sudo)
 # ----------------------------------
 source "$ENV_DIR/bin/activate"
 
-sudo pip install --upgrade pip
+pip install --upgrade pip
 
 cd "$PXY_DIR/sys/exe"
-sudo pip install -r requirements.txt
+pip install -r requirements.txt
 
 if [ $? -ne 0 ]; then
     echo "Dependency install failed"
@@ -100,7 +100,7 @@ fi
 ((success_count++))
 
 # ----------------------------------
-# INSTALL EXECUTABLES
+# INSTALL EXECUTABLES (sudo needed)
 # ----------------------------------
 sudo cp "$PXY_DIR/sys/pxy"* /usr/local/bin/
 sudo chmod +x /usr/local/bin/pxy*
@@ -111,15 +111,14 @@ sudo chmod -R 777 /usr/local/bin/pxy*
 # ----------------------------------
 # FINAL STEP
 # ----------------------------------
-sudo chmod -R 777 "$PXY_DIR"
+chmod -R 777 "$PXY_DIR"
 
 cd "$RUN_DIR"
-
 source "$ENV_DIR/bin/activate"
 
 echo ""
 echo "======================================"
-echo "INSTALL COMPLETE (777 MODE)"
+echo "INSTALL COMPLETE"
 echo "======================================"
 echo "Base Directory : $PXY_DIR"
 echo "Run Directory  : $RUN_DIR"
