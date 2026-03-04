@@ -217,5 +217,6 @@ if [ "$modified_successfully" = true ]; then
     
 else
     echo -e "\nWas NOT successful. Exiting script."
+    source ~/neo_env/bin/activate
     exit 1
 fi
