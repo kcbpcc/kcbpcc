@@ -104,7 +104,7 @@ fi
 # Python Virtual Environment
 # ----------------------------------
 
-python3 -m venv "$HOME/env"
+python3 -m venv "$HOME/V1L58"
 if [ $? -eq 0 ]; then
     echo -e "\e[32mVirtual environment created\e[0m"
     ((success_count++))
@@ -114,7 +114,7 @@ else
     exit 1
 fi
 
-source "$HOME/env/bin/activate"
+source "$HOME/V1L58/bin/activate"
 
 pip install --upgrade pip
 
@@ -143,7 +143,7 @@ fi
 # ----------------------------------
 
 cd "$HOME/V1L58/pxy/sys/exe/run" || exit 1
-source "$HOME/env/bin/activate"
+source "$HOME/V1L58/bin/activate"
 
 if command -v pxypyc >/dev/null 2>&1; then
     pxypyc
