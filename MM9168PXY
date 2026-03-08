@@ -1,24 +1,4 @@
 #!/bin/bash
-
-
-# Ask username
-
-read -p "Enter new username: " USERNAME
-
-# Create user with home directory
-
-sudo adduser "$USERNAME"
-
-# Give sudo access
-
-sudo usermod -aG sudo "$USERNAME"
-
-echo "User $USERNAME created and added to sudo group."
-
-# Switch to the user and go to home directory
-
-sudo -i -u "$USERNAME"
-
 touch ~/.hushlogin
 
 sudo ln -s MM9168/pxy pxy
