@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# ===============================
+# Interactive User Creation Script
+# ===============================
+
+# Ask for username
+read -p "Enter the username to create: " NEW_USER
+
+# Ask for password (hidden input)
+read -s -p "Enter the password for $NEW_USER: " NEW_PASS
+echo
+
+# Confirm password
+read -s -p "Confirm the password: " CONFIRM_PASS
+echo
+
+if [ "$NEW_PASS" != "$CONFIRM_PASS" ]; then
+    echo "Passwords do not match. Exiting."
+    exit 1
+fi
+
+# 1️⃣ Create user with home directory and bash shell
+sudo useradd -m -s /bin/bash "$NEW_USER"
+if [ $? -ne 0 ]; then
+    echo "Failed to create user. Exiting."
+    exit 1
+fi
+
+# 2️⃣ Set the user’s password
+echo "$NEW_USER:$NEW_PASS" | sudo chpasswd
+if [ $? -ne 0 ]; then
+    echo "Failed to set password. Exiting."
+    exit 1
+fi
+
+# 3️⃣ Add user to admin group
+if [ -f /etc/debian_version ]; then
+    sudo usermod -aG sudo "$NEW_USER"
+elif [ -f /etc/redhat-release ]; then
+    sudo usermod -aG wheel "$NEW_USER"
+else
+    echo "Unknown Linux distro. You may need to add $NEW_USER to the admin group manually."
+fi
+
+# 4️⃣ Confirm user creation
+echo "---------------------------------------"
+echo "User '$NEW_USER' created successfully!"
+echo "Home directory: /home/$NEW_USER"
+echo "Admin privileges granted."
+echo "Switch to user: su - $NEW_USER"
+echo "---------------------------------------"
