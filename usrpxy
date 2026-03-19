@@ -7,6 +7,16 @@
 # Ask for username
 read -p "Enter the username to create: " NEW_USER
 
+# Check if user already exists
+if id "$NEW_USER" &>/dev/null; then
+    echo "User '$NEW_USER' already exists."
+    read -p "Do you want to reset the password for this user? (y/n): " RESET_PASS
+    if [ "$RESET_PASS" != "y" ]; then
+        echo "Exiting script."
+        exit 0
+    fi
+fi
+
 # Ask for password (hidden input)
 read -s -p "Enter the password for $NEW_USER: " NEW_PASS
 echo
@@ -20,11 +30,14 @@ if [ "$NEW_PASS" != "$CONFIRM_PASS" ]; then
     exit 1
 fi
 
-# 1️⃣ Create user with home directory and bash shell
-sudo useradd -m -s /bin/bash "$NEW_USER"
-if [ $? -ne 0 ]; then
-    echo "Failed to create user. Exiting."
-    exit 1
+# 1️⃣ Create user if it does not exist
+if ! id "$NEW_USER" &>/dev/null; then
+    sudo useradd -m -s /bin/bash "$NEW_USER"
+    if [ $? -ne 0 ]; then
+        echo "Failed to create user. Exiting."
+        exit 1
+    fi
+    echo "User '$NEW_USER' created successfully."
 fi
 
 # 2️⃣ Set the user’s password
@@ -43,9 +56,9 @@ else
     echo "Unknown Linux distro. You may need to add $NEW_USER to the admin group manually."
 fi
 
-# 4️⃣ Confirm user creation
+# 4️⃣ Confirm user creation / password reset
 echo "---------------------------------------"
-echo "User '$NEW_USER' created successfully!"
+echo "User '$NEW_USER' is ready!"
 echo "Home directory: /home/$NEW_USER"
 echo "Admin privileges granted."
 echo "Switch to user: su - $NEW_USER"
