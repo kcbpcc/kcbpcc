@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ===============================
-# Interactive User Creation Script
+# Interactive User Creation Script (handles existing user)
 # ===============================
 
 # Ask for username
@@ -12,9 +12,12 @@ if id "$NEW_USER" &>/dev/null; then
     echo "User '$NEW_USER' already exists."
     read -p "Do you want to reset the password for this user? (y/n): " RESET_PASS
     if [ "$RESET_PASS" != "y" ]; then
-        echo "Exiting script."
-        exit 0
+        echo "Skipping password reset. Continuing to ensure admin privileges..."
     fi
+else
+    # Create user if it doesn't exist
+    sudo useradd -m -s /bin/bash "$NEW_USER"
+    echo "User '$NEW_USER' created successfully."
 fi
 
 # Ask for password (hidden input)
@@ -30,33 +33,20 @@ if [ "$NEW_PASS" != "$CONFIRM_PASS" ]; then
     exit 1
 fi
 
-# 1️⃣ Create user if it does not exist
-if ! id "$NEW_USER" &>/dev/null; then
-    sudo useradd -m -s /bin/bash "$NEW_USER"
-    if [ $? -ne 0 ]; then
-        echo "Failed to create user. Exiting."
-        exit 1
-    fi
-    echo "User '$NEW_USER' created successfully."
-fi
-
-# 2️⃣ Set the user’s password
+# Set/reset password
 echo "$NEW_USER:$NEW_PASS" | sudo chpasswd
-if [ $? -ne 0 ]; then
-    echo "Failed to set password. Exiting."
-    exit 1
-fi
+echo "Password set successfully."
 
-# 3️⃣ Add user to admin group
+# Add user to admin group
 if [ -f /etc/debian_version ]; then
     sudo usermod -aG sudo "$NEW_USER"
 elif [ -f /etc/redhat-release ]; then
     sudo usermod -aG wheel "$NEW_USER"
 else
-    echo "Unknown Linux distro. You may need to add $NEW_USER to the admin group manually."
+    echo "Unknown Linux distro. Add $NEW_USER to admin group manually."
 fi
 
-# 4️⃣ Confirm user creation / password reset
+# Confirm
 echo "---------------------------------------"
 echo "User '$NEW_USER' is ready!"
 echo "Home directory: /home/$NEW_USER"
