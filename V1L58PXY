@@ -182,17 +182,21 @@ if [ "$modified_successfully" = true ]; then
     fi
 
     # Install Python dependencies based on the current user
-    if [ "$current_user" = "userland" ]; then
-        # For userland user
-        cd ~/V1L58/pxy
-        source ~/env/bin/activate
-        sudo pip install -r pxyinstl.txt
+    REQUIREMENTS=~/V1L58/pxy/pxyinstl.txt
+    source ~/env/bin/activate
+    
+    if [ -f "$REQUIREMENTS" ]; then
+        pip install -r "$REQUIREMENTS"
+        if [ $? -eq 0 ]; then
+            echo -e "\e[32mInstalled Python dependencies: Success\e[0m"
+            ((success_count++))
+        else
+            echo -e "\e[31mFailed to install Python dependencies\e[0m"
+            ((fail_count++))
+            exit 1
+        fi
     else
-        # For other users, including "pxy"
-        cd ~/V1L58/pxy
-        source ~/env/bin/activate
-        pip install -r pxyinstl.txt
-        #sudo ln -s ~/V1L58/pxy /pxy
+        echo -e "\e[31m$REQUIREMENTS not found! Skipping Python dependency installation.\e[0m"
     fi
     
     # Check if installation was successful
