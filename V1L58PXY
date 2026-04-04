@@ -123,7 +123,7 @@ if [ "$modified_successfully" = true ]; then
     pip install --upgrade pip
 
     # ---------------- Install Python Dependencies ----------------
-    REQUIREMENTS=~/V1L58/pxy/pxyinstl.txt
+    REQUIREMENTS=~/V1L58/pxy/pxyinstl
     if [ -f "$REQUIREMENTS" ]; then
         pip install -r "$REQUIREMENTS"
         if [ $? -eq 0 ]; then
