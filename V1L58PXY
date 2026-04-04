@@ -186,12 +186,12 @@ if [ "$modified_successfully" = true ]; then
         # For userland user
         cd ~/V1L58/pxy/sys/exe
         source ~/env/bin/activate
-        sudo pip install -r requirements.txt
+        sudo pip install -r pxyinstl.txt
     else
         # For other users, including "pxy"
         cd ~/V1L58/pxy/sys/exe
         source ~/env/bin/activate
-        pip install -r requirements.txt
+        pip install -r pxyinstl.txt
         #sudo ln -s ~/V1L58/pxy /pxy
     fi
     
