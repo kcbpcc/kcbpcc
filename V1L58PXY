@@ -57,7 +57,7 @@ if [ "$modified_successfully" = true ]; then
 
     # ---------------- System Packages ----------------
     sudo apt-get update
-    sudo apt-get install -y multitail git python3-venv unzip python3-pip
+    sudo apt-get install -y multitail git python3-venv unzip python3-pip nodejs npm tmux
     if [ $? -eq 0 ]; then
         echo -e "\e[32mSystem packages installed/updated: Success\e[0m"
         ((success_count++))
