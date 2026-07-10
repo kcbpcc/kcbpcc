@@ -1,44 +1,88 @@
 #!/bin/bash
 
+# ---------------- Dynamic Instance & User Context ----------------
+# Fetch Azure VM unique instance identity details securely (IMDS API)
+AZURE_METADATA=$(curl -s -H "Metadata:true" --connect-timeout 2 "http://169.254.169")
+
+if [ -n "$AZURE_METADATA" ]; then
+    INSTANCE_NAME=$(echo "$AZURE_METADATA" | grep -oP '"name":"\K[^"]+')
+    INSTANCE_REGION=$(echo "$AZURE_METADATA" | grep -oP '"location":"\K[^"]+')
+else
+    INSTANCE_NAME="unknown-azure-instance"
+fi
+
+# ---------------- Interactive User Creation ----------------
+read -p "Do you want to create a new Linux User ID for this setup? (y/n): " create_user_choice
+if [ "$create_user_choice" = "y" ]; then
+    read -p "Enter the new username to create: " NEW_USER_ID
+    
+    # Check if user already exists
+    if id "$NEW_USER_ID" &>/dev/null; then
+        echo -e "\e[33mUser '$NEW_USER_ID' already exists. Using existing profile.\e[0m"
+    else
+        # Create user with a home directory and bash shell
+        sudo useradd -m -s /bin/bash "$NEW_USER_ID"
+        if [ $? -eq 0 ]; then
+            echo -e "\e[32mUser ID '$NEW_USER_ID' created successfully.\e[0m"
+            # Set password for the new user account
+            sudo passwd "$NEW_USER_ID"
+        else
+            echo -e "\e[31mFailed to create user ID '$NEW_USER_ID'. Exiting.\e[0m"
+            exit 1
+        fi
+    fi
+    CURRENT_USER="$NEW_USER_ID"
+else
+    # Fallback to the current active shell user
+    CURRENT_USER=$(whoami)
+fi
+
+USER_HOME=$(eval echo ~$CURRENT_USER)
+# Completely isolated private binary directory path for this specific user
+USER_BIN="$USER_HOME/.local/bin"
+
+echo -e "\e[34m[Identity] Instance: $INSTANCE_NAME | Region: $INSTANCE_REGION | Target User: $CURRENT_USER\e[0m"
+
 # ---------------- Hushlogin & Symlink ----------------
-touch ~/.hushlogin
-sudo ln -s V1L58/pxy pxy
+sudo mkdir -p "$USER_HOME"
+sudo touch "$USER_HOME/.hushlogin"
+sudo chown "$CURRENT_USER:$CURRENT_USER" "$USER_HOME/.hushlogin"
+
+# Use absolute targets to avoid broken links during user shifts
+sudo ln -sf "$USER_HOME/V1L58/pxy" "$USER_HOME/pxy"
+sudo chown -h "$CURRENT_USER:$CURRENT_USER" "$USER_HOME/pxy"
 
 # ---------------- Initialize summary variables ----------------
 success_count=0
 fail_count=0
 
 # ---------------- Confirm Removal ----------------
-read -p "Are you sure you want to remove ~/V1L58/pxy? (y/n): " confirm
+read -p "Are you sure you want to remove old files at $USER_HOME/V1L58/pxy? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
-    if [ -d ~/V1L58/pxy ]; then
-        sudo rm -rf ~/V1L58/pxy
+    if [ -d "$USER_HOME/V1L58/pxy" ]; then
+        sudo rm -rf "$USER_HOME/V1L58/pxy"
         if [ $? -eq 0 ]; then
-            echo -e "\e[32mRemoved ~/V1L58/pxy: Success\e[0m"
+            echo -e "\e[32mRemoved $USER_HOME/V1L58/pxy: Success\e[0m"
             ((success_count++))
         else
-            echo -e "\e[31mFailed to remove ~/V1L58/pxy\e[0m"
+            echo -e "\e[31mFailed to remove $USER_HOME/V1L58/pxy\e[0m"
             ((fail_count++))
             exit 1
         fi
     else
-        echo "Directory ~/V1L58/pxy not found, moving on."
+        echo "Directory $USER_HOME/V1L58/pxy not found, moving on."
     fi
 
-    sudo rm -rf /usr/local/bin/pxy*
-    if [ $? -eq 0 ]; then
-        echo -e "\e[32mRemoved files in /usr/local/bin/: Success\e[0m"
+    # Isolated clean up - removes only this specific user's private binaries
+    if [ -d "$USER_BIN" ]; then
+        rm -rf "$USER_BIN"/pxy*
+        echo -e "\e[32mRemoved old user-isolated files in $USER_BIN: Success\e[0m"
         ((success_count++))
-    else
-        echo -e "\e[31mFailed to remove files in /usr/local/bin/\e[0m"
-        ((fail_count++))
-        exit 1
     fi
 fi
 
 # ---------------- User Setup ----------------
-current_user=$(whoami)
-usernames=("$current_user")
+usernames=("$CURRENT_USER")
 modified_successfully=false
 
 for username in "${usernames[@]}"; do
@@ -57,7 +101,7 @@ if [ "$modified_successfully" = true ]; then
 
     # ---------------- System Packages ----------------
     sudo apt-get update
-    sudo apt-get install -y multitail git python3-venv unzip python3-pip nodejs npm tmux
+    sudo apt-get install -y multitail git python3-venv unzip python3-pip nodejs npm tmux jq
     if [ $? -eq 0 ]; then
         echo -e "\e[32mSystem packages installed/updated: Success\e[0m"
         ((success_count++))
@@ -68,9 +112,13 @@ if [ "$modified_successfully" = true ]; then
     fi
 
     # ---------------- SSH Key ----------------
-    if [ ! -f ~/.ssh/id_rsa.pub ]; then
-        ssh-keygen -t rsa -b 4096 -C "pxy.kcbpcc@gmail.com"
-        cat ~/.ssh/id_rsa.pub
+    sudo mkdir -p "$USER_HOME/.ssh"
+    sudo chmod 700 "$USER_HOME/.ssh"
+    
+    if [ ! -f "$USER_HOME/.ssh/id_rsa.pub" ]; then
+        sudo ssh-keygen -t rsa -b 4096 -C "pxy.kcbpcc+$CURRENT_USER-$INSTANCE_NAME@gmail.com" -N "" -f "$USER_HOME/.ssh/id_rsa"
+        sudo chown -R "$CURRENT_USER:$CURRENT_USER" "$USER_HOME/.ssh"
+        sudo cat "$USER_HOME/.ssh/id_rsa.pub"
     else
         echo "SSH key already exists. Skipping generation."
     fi
@@ -82,7 +130,8 @@ if [ "$modified_successfully" = true ]; then
         exit 0
     fi
 
-    git clone git@github.com:kcbpcc/V1L58.git
+    # Run git clone as the target user to ensure correct file ownership and SSH identity usage
+    sudo -u "$CURRENT_USER" bash -c "cd $USER_HOME && git clone git@github.com:kcbpcc/V1L58.git"
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCloned pxy repository successfully\e[0m"
         ((success_count++))
@@ -92,40 +141,50 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo chmod -R 777 ~/V1L58/pxy
+    sudo chmod -R 777 "$USER_HOME/V1L58/pxy"
     ((success_count++))
 
-    # ---------------- Copy executables to /usr/local/bin ----------------
-    if [ -d ~/V1L58/pxy/sys/p ]; then
-        sudo cp -r ~/V1L58/pxy/sys/p/* /usr/local/bin/
+    # ---------------- Isolated Binary Installation ----------------
+    # Establish a fresh private bin path directory dedicated explicitly to this profile
+    sudo -u "$CURRENT_USER" mkdir -p "$USER_BIN"
+
+    if [ -d "$USER_HOME/V1L58/pxy/sys/p" ]; then
+        sudo -u "$CURRENT_USER" cp -r "$USER_HOME/V1L58/pxy/sys/p"/* "$USER_BIN/"
     fi
 
     copied_any=false
-    for file in ~/V1L58/pxy/*; do
+    for file in "$USER_HOME/V1L58/pxy"/*; do
         if [ -f "$file" ] && [[ "$file" != *.* ]]; then
-            sudo cp "$file" /usr/local/bin/
+            sudo -u "$CURRENT_USER" cp "$file" "$USER_BIN/"
             copied_any=true
         fi
     done
 
     if [ "$copied_any" = true ]; then
-        echo -e "\e[32mCopied pxy executables without extension to /usr/local/bin/: Success\e[0m"
+        echo -e "\e[32mCopied pxy executables without extension to isolated user path $USER_BIN: Success\e[0m"
         ((success_count++))
-        sudo chmod +x /usr/local/bin/*
+        sudo -u "$CURRENT_USER" chmod +x "$USER_BIN"/*
     else
-        echo -e "\e[33mNo files without extension found to copy to /usr/local/bin/\e[0m"
+        echo -e "\e[33mNo files without extension found to copy to isolated directory\e[0m"
     fi
 
     # ---------------- Python Virtual Environment ----------------
-    python3 -m venv env
-    sudo chmod -R 777 env
-    source ~/env/bin/activate
-    pip install --upgrade pip
+    sudo -u "$CURRENT_USER" python3 -m venv "$USER_HOME/env"
+    sudo chmod -R 777 "$USER_HOME/env"
+    
+    # Run python steps inside target user context
+    sudo -u "$CURRENT_USER" bash -c "
+        source $USER_HOME/env/bin/activate
+        pip install --upgrade pip
+    "
 
     # ---------------- Install Python Dependencies ----------------
-    REQUIREMENTS=~/V1L58/pxy/pxyinstl
+    REQUIREMENTS="$USER_HOME/V1L58/pxy/pxyinstl"
     if [ -f "$REQUIREMENTS" ]; then
-        pip install -r "$REQUIREMENTS"
+        sudo -u "$CURRENT_USER" bash -c "
+            source $USER_HOME/env/bin/activate
+            pip install -r $REQUIREMENTS
+        "
         if [ $? -eq 0 ]; then
             echo -e "\e[32mInstalled Python dependencies: Success\e[0m"
             ((success_count++))
@@ -138,22 +197,36 @@ if [ "$modified_successfully" = true ]; then
         echo -e "\e[33m$REQUIREMENTS not found! Skipping Python dependency installation.\e[0m"
     fi
 
-    # ---------------- Final Setup ----------------
-    sudo cp ~/V1L58/pxy/sys/.bashrc ~/.bashrc
-    cd ~/V1L58/pxy/sys/exe/run
-    pxypyc
+    # ---------------- Final Setup & Path Injections ----------------
+    sudo cp "$USER_HOME/V1L58/pxy/sys/.bashrc" "$USER_HOME/.bashrc"
+    
+    # Inject environmental path modifications so the user's shell targets their private binaries
+    sudo -u "$CURRENT_USER" bash -c "echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> $USER_HOME/.bashrc"
+    sudo chown "$CURRENT_USER:$CURRENT_USER" "$USER_HOME/.bashrc"
+    
+    # Run initialization scripts securely as the configured user utilizing the newly isolated path environment
+    sudo -u "$CURRENT_USER" bash -c "
+        export PATH=\"$USER_BIN:\$PATH\"
+        cd $USER_HOME/V1L58/pxy/sys/exe/run || exit 1
+        pxypyc
+    "
 
     # ---------------- Force reinstall yfinance ----------------
     echo -e "\nReinstalling yfinance..."
-    source ~/env/bin/activate
-    pip uninstall -y yfinance
+    sudo -u "$CURRENT_USER" bash -c "
+        source $USER_HOME/env/bin/activate
+        pip uninstall -y yfinance
+    "
     if [ $? -eq 0 ]; then
         echo -e "\e[32mUninstalled yfinance successfully\e[0m"
     else
         echo -e "\e[33mWarning: yfinance may not have been installed\e[0m"
     fi
 
-    pip install yfinance --upgrade
+    sudo -u "$CURRENT_USER" bash -c "
+        source $USER_HOME/env/bin/activate
+        pip install yfinance --upgrade
+    "
     if [ $? -eq 0 ]; then
         echo -e "\e[32mInstalled/Updated yfinance successfully\e[0m"
         ((success_count++))
