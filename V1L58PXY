@@ -1,74 +1,52 @@
 #!/bin/bash
 
-# ---------------- Force User Creation ----------------
-echo -e "\e[34m[Setup] A new, isolated Linux user must be created to continue.\e[0m"
-while true; do
-    read -p "Enter the new username to create: " NEW_USER_ID
-    if [ -z "$NEW_USER_ID" ]; then
-        echo -e "\e[31mUsername cannot be empty.\e[0m"
-    elif id "$NEW_USER_ID" &>/dev/null; then
-        echo -e "\e[33mUser '$NEW_USER_ID' already exists. Choose a unique name.\e[0m"
-    else
-        # Create user with a home directory and standard bash shell
-        sudo useradd -m -s /bin/bash "$NEW_USER_ID"
-        if [ $? -eq 0 ]; then
-            echo -e "\e[32mUser ID '$NEW_USER_ID' created successfully.\e[0m"
-            sudo passwd "$NEW_USER_ID"
-            break
-        else
-            echo -e "\e[31mFailed to create user ID. Try again.\e[0m"
-        fi
-    fi
-done
-
-CURRENT_USER="$NEW_USER_ID"
+# ---------------- Dynamic Instance & User Context ----------------
+# Automatically track active user runtime profiles
+CURRENT_USER=$(whoami)
 USER_HOME=$(eval echo ~$CURRENT_USER)
 # Completely isolated private binary directory path for this specific user
 USER_BIN="$USER_HOME/.local/bin"
 
-# ---------------- Dynamic Azure Instance Context ----------------
+# Fetch Azure VM unique instance identity details securely (IMDS API)
 AZURE_METADATA=$(curl -s -H "Metadata:true" --connect-timeout 2 "http://169.254.169")
+
 if [ -n "$AZURE_METADATA" ]; then
     INSTANCE_NAME=$(echo "$AZURE_METADATA" | grep -oP '"name":"\K[^"]+')
     INSTANCE_REGION=$(echo "$AZURE_METADATA" | grep -oP '"location":"\K[^"]+')
+    echo -e "\e[34m[Identity] Instance: $INSTANCE_NAME | Region: $INSTANCE_REGION | Isolated User: $CURRENT_USER\e[0m"
 else
     INSTANCE_NAME="unknown-azure-instance"
 fi
-echo -e "\e[34m[Identity] Instance: $INSTANCE_NAME | Region: $INSTANCE_REGION | Target User: $CURRENT_USER\e[0m"
 
-# ---------------- Environment Setup ----------------
-sudo mkdir -p "$USER_HOME"
-sudo touch "$USER_HOME/.hushlogin"
-sudo chown "$CURRENT_USER:$CURRENT_USER" "$USER_HOME/.hushlogin"
-
-# Dynamic symlink tracking based purely on repository root name structure
-sudo ln -sf "$USER_HOME/V1L58" "$USER_HOME/active_repo"
-sudo chown -h "$CURRENT_USER:$CURRENT_USER" "$USER_HOME/active_repo"
+# ---------------- Hushlogin & Symlink ----------------
+touch "$USER_HOME/.hushlogin"
+# Use absolute targets to avoid broken links during user shifts
+sudo ln -sf "$USER_HOME/V1L58/pxy" "$USER_HOME/pxy"
 
 # ---------------- Initialize summary variables ----------------
 success_count=0
 fail_count=0
 
 # ---------------- Confirm Removal ----------------
-read -p "Are you sure you want to remove old files at $USER_HOME/V1L58? (y/n): " confirm
+read -p "Are you sure you want to remove ~/V1L58/pxy? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
-    if [ -d "$USER_HOME/V1L58" ]; then
-        sudo rm -rf "$USER_HOME/V1L58"
+    if [ -d "$USER_HOME/V1L58/pxy" ]; then
+        sudo rm -rf "$USER_HOME/V1L58/pxy"
         if [ $? -eq 0 ]; then
-            echo -e "\e[32mRemoved $USER_HOME/V1L58: Success\e[0m"
+            echo -e "\e[32mRemoved ~/V1L58/pxy: Success\e[0m"
             ((success_count++))
         else
-            echo -e "\e[31mFailed to remove $USER_HOME/V1L58\e[0m"
+            echo -e "\e[31mFailed to remove ~/V1L58/pxy\e[0m"
             ((fail_count++))
             exit 1
         fi
     else
-        echo "Directory $USER_HOME/V1L58 not found, moving on."
+        echo "Directory ~/V1L58/pxy not found, moving on."
     fi
 
-    # Isolated binary clean up - removes only this specific user's private binaries
+    # Isolated clean up - removes only this specific user's private binaries
     if [ -d "$USER_BIN" ]; then
-        rm -rf "$USER_BIN"/*
+        rm -rf "$USER_BIN"/pxy*
         echo -e "\e[32mRemoved old user-isolated files in $USER_BIN: Success\e[0m"
         ((success_count++))
     fi
@@ -105,13 +83,9 @@ if [ "$modified_successfully" = true ]; then
     fi
 
     # ---------------- SSH Key ----------------
-    sudo mkdir -p "$USER_HOME/.ssh"
-    sudo chmod 700 "$USER_HOME/.ssh"
-
     if [ ! -f "$USER_HOME/.ssh/id_rsa.pub" ]; then
-        sudo ssh-keygen -t rsa -b 4096 -C "repo.setup+$CURRENT_USER-$INSTANCE_NAME@gmail.com" -N "" -f "$USER_HOME/.ssh/id_rsa"
-        sudo chown -R "$CURRENT_USER:$CURRENT_USER" "$USER_HOME/.ssh"
-        sudo cat "$USER_HOME/.ssh/id_rsa.pub"
+        ssh-keygen -t rsa -b 4096 -C "pxy.kcbpcc@gmail.com" -N "" -f "$USER_HOME/.ssh/id_rsa"
+        cat "$USER_HOME/.ssh/id_rsa.pub"
     else
         echo "SSH key already exists. Skipping generation."
     fi
@@ -123,67 +97,53 @@ if [ "$modified_successfully" = true ]; then
         exit 0
     fi
 
-    # Clone the main code block completely linked inside the new user profile directory
-    sudo -u "$CURRENT_USER" bash -c "cd $USER_HOME && git clone git@github.com:kcbpcc/V1L58.git"
+    git clone git@github.com:kcbpcc/V1L58.git
     if [ $? -eq 0 ]; then
-        echo -e "\e[32mCloned repository successfully\e[0m"
+        echo -e "\e[32mCloned pxy repository successfully\e[0m"
         ((success_count++))
     else
-        echo -e "\e[31mFailed to clone repository\e[0m"
+        echo -e "\e[31mFailed to clone pxy repository\e[0m"
         ((fail_count++))
         exit 1
     fi
 
-    sudo chmod -R 777 "$USER_HOME/V1L58"
+    sudo chmod -R 777 "$USER_HOME/V1L58/pxy"
     ((success_count++))
 
-    # ---------------- Isolated Specific Binaries Installation ----------------
-    # Create the user's isolated private binary folder
-    sudo -u "$CURRENT_USER" mkdir -p "$USER_BIN"
+    # ---------------- Isolated Binary Installation ----------------
+    # Establish a fresh private bin path directory dedicated explicitly to this profile
+    mkdir -p "$USER_BIN"
 
-    # Dynamically find the system executable subdirectory inside the repository layout
-    SYS_BIN_DIR=$(find "$USER_HOME/V1L58" -type d -path "*/sys/p" | head -n 1)
-    if [ -n "$SYS_BIN_DIR" ] && [ -d "$SYS_BIN_DIR" ]; then
-        sudo -u "$CURRENT_USER" cp -r "$SYS_BIN_DIR"/* "$USER_BIN/"
+    if [ -d "$USER_HOME/V1L58/pxy/sys/p" ]; then
+        cp -r "$USER_HOME/V1L58/pxy/sys/p"/* "$USER_BIN/"
     fi
 
-    # Copy files without extension from the primary code subdirectory to the isolated user binary directory
-    INNER_PROJECT_DIR=$(find "$USER_HOME/V1L58" -maxdepth 1 -mindepth 1 -type d | head -n 1)
-    if [ -n "$INNER_PROJECT_DIR" ] && [ -d "$INNER_PROJECT_DIR" ]; then
-        copied_any=false
-        for file in "$INNER_PROJECT_DIR"/*; do
-            if [ -f "$file" ] && [[ "$file" != *.* ]]; then
-                sudo -u "$CURRENT_USER" cp "$file" "$USER_BIN/"
-                copied_any=true
-            fi
-        done
-
-        if [ "$copied_any" = true ]; then
-            echo -e "\e[32mCopied project executables to isolated user path $USER_BIN: Success\e[0m"
-            ((success_count++))
-            sudo -u "$CURRENT_USER" chmod +x "$USER_BIN"/*
-        else
-            echo -e "\e[33mNo flat executable files found to isolate\e[0m"
+    copied_any=false
+    for file in "$USER_HOME/V1L58/pxy"/*; do
+        if [ -f "$file" ] && [[ "$file" != *.* ]]; then
+            cp "$file" "$USER_BIN/"
+            copied_any=true
         fi
+    done
+
+    if [ "$copied_any" = true ]; then
+        echo -e "\e[32mCopied pxy executables without extension to isolated user path $USER_BIN: Success\e[0m"
+        ((success_count++))
+        chmod +x "$USER_BIN"/*
+    else
+        echo -e "\e[33mNo files without extension found to copy to isolated directory\e[0m"
     fi
 
     # ---------------- Python Virtual Environment ----------------
-    sudo -u "$CURRENT_USER" python3 -m venv "$USER_HOME/env"
+    python3 -m venv "$USER_HOME/env"
     sudo chmod -R 777 "$USER_HOME/env"
+    source "$USER_HOME/env/bin/activate"
+    pip install --upgrade pip
 
-    sudo -u "$CURRENT_USER" bash -c "
-        source $USER_HOME/env/bin/activate
-        pip install --upgrade pip
-    "
-
-    # ---------------- Dynamic Python Dependencies ----------------
-    # Locate the requirements installation file dynamically within the project structure
-    REQUIREMENTS_FILE=$(find "$USER_HOME/V1L58" -type f -name "*instl*" | head -n 1)
-    if [ -n "$REQUIREMENTS_FILE" ] && [ -f "$REQUIREMENTS_FILE" ]; then
-        sudo -u "$CURRENT_USER" bash -c "
-            source $USER_HOME/env/bin/activate
-            pip install -r $REQUIREMENTS_FILE
-        "
+    # ---------------- Install Python Dependencies ----------------
+    REQUIREMENTS="$USER_HOME/V1L58/pxy/pxyinstl"
+    if [ -f "$REQUIREMENTS" ]; then
+        pip install -r "$REQUIREMENTS"
         if [ $? -eq 0 ]; then
             echo -e "\e[32mInstalled Python dependencies: Success\e[0m"
             ((success_count++))
@@ -193,52 +153,34 @@ if [ "$modified_successfully" = true ]; then
             exit 1
         fi
     else
-        echo -e "\e[33mDependency configuration file not found! Skipping installation.\e[0m"
+        echo -e "\e[33m$REQUIREMENTS not found! Skipping Python dependency installation.\e[0m"
     fi
 
     # ---------------- Final Setup & Path Injections ----------------
-    # Dynamically find the .bashrc configuration file within the repository layout
-    BASHRC_SRC=$(find "$USER_HOME/V1L58" -type f -name ".bashrc" | head -n 1)
-    if [ -n "$BASHRC_SRC" ] && [ -f "$BASHRC_SRC" ]; then
-        sudo cp "$BASHRC_SRC" "$USER_HOME/.bashrc"
-    fi
-
-    # Force inject the isolated private bin path to the user's local profile configuration
-    sudo -u "$CURRENT_USER" bash -c "echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> $USER_HOME/.bashrc"
+    sudo cp "$USER_HOME/V1L58/pxy/sys/.bashrc" "$USER_HOME/.bashrc"
     sudo chown "$CURRENT_USER:$CURRENT_USER" "$USER_HOME/.bashrc"
-
-    # Dynamically locate the initialization runtime script folder and run any scripts found inside it
-    RUN_DIR=$(find "$USER_HOME/V1L58" -type d -path "*/sys/exe/run" | head -n 1)
-    sudo -u "$CURRENT_USER" bash -c "
-        export PATH=\"$USER_BIN:\$PATH\"
-        if [ -n '$RUN_DIR' ] && [ -d '$RUN_DIR' ]; then
-            cd '$RUN_DIR' || exit 1
-            # Dynamic sweep loop to execute internal script elements blindly without static keywords
-            for exec_script in *; do
-                if [ -f \"\$exec_script\" ] && command -v \"\$exec_script\" &>/dev/null; then
-                    \"\$exec_script\"
-                    break
-                fi
-            done
-        fi
-    "
+    
+    # Inject environmental path modifications so the user's shell targets their private binaries
+    if ! grep -q '\.local/bin' "$USER_HOME/.bashrc"; then
+        echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$USER_HOME/.bashrc"
+    fi
+    
+    # Run initialization scripts securely using the newly isolated path environment
+    export PATH="$USER_BIN:$PATH"
+    cd "$USER_HOME/V1L58/pxy/sys/exe/run" || exit 1
+    pxypyc
 
     # ---------------- Force reinstall yfinance ----------------
     echo -e "\nReinstalling yfinance..."
-    sudo -u "$CURRENT_USER" bash -c "
-        source $USER_HOME/env/bin/activate
-        pip uninstall -y yfinance
-    "
+    source "$USER_HOME/env/bin/activate"
+    pip uninstall -y yfinance
     if [ $? -eq 0 ]; then
         echo -e "\e[32mUninstalled yfinance successfully\e[0m"
     else
-        echo -e "\e[33mWarning: yfinance process passed\e[0m"
+        echo -e "\e[33mWarning: yfinance may not have been installed\e[0m"
     fi
 
-    sudo -u "$CURRENT_USER" bash -c "
-        source $USER_HOME/env/bin/activate
-        pip install yfinance --upgrade
-    "
+    pip install yfinance --upgrade
     if [ $? -eq 0 ]; then
         echo -e "\e[32mInstalled/Updated yfinance successfully\e[0m"
         ((success_count++))
