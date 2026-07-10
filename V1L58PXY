@@ -2,7 +2,7 @@
 
 # ---------------- Hushlogin & Symlink ----------------
 touch ~/.hushlogin
-#sudo ln -s V1L58/pxy pxy
+sudo ln -s V1L58/pxy pxy
 
 # ---------------- Initialize summary variables ----------------
 success_count=0
