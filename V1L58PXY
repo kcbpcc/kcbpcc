@@ -95,6 +95,35 @@ if [ "$modified_successfully" = true ]; then
     sudo chmod -R 777 ~/V1L58/pxy
     ((success_count++))
 
+    # ---------------- Node.js Dependencies & Port Permissions ----------------
+    echo -e "\nSetting up Node.js project environment..."
+    if [ -d ~/V1L58/pxy ]; then
+        cd ~/V1L58/pxy || exit 1
+        if [ -f "package.json" ]; then
+            npm install
+            if [ $? -eq 0 ]; then
+                echo -e "\e[32mNode.js dependencies installed successfully\e[0m"
+                ((success_count++))
+            else
+                echo -e "\e[31mFailed to install Node.js dependencies\e[0m"
+                ((fail_count++))
+            fi
+        else
+            echo -e "\e[33mWarning: package.json not found in ~/V1L58/pxy. Skipping npm install.\e[0m"
+        fi
+        cd ~ || exit 1
+    fi
+
+    # Grant Node permission to use port 80 without sudo
+    sudo setcap 'cap_net_bind_service=+ep' $(which node)
+    if [ $? -eq 0 ]; then
+        echo -e "\e[32mGranted Node.js capabilities to bind to low ports (e.g. Port 80)\e[0m"
+        ((success_count++))
+    else
+        echo -e "\e[31mFailed to apply setcap capabilities to Node.js\e[0m"
+        ((fail_count++))
+    fi
+
     # ---------------- Copy executables to /usr/local/bin ----------------
     if [ -d ~/V1L58/pxy/sys/p ]; then
         sudo cp -r ~/V1L58/pxy/sys/p/* /usr/local/bin/
@@ -138,9 +167,8 @@ if [ "$modified_successfully" = true ]; then
         echo -e "\e[33m$REQUIREMENTS not found! Skipping Python dependency installation.\e[0m"
     fi
 
-    # ---------------- Final Setup ----------------
-    sudo cp ~/V1L58/pxy/sys/.bashrc ~/.bashrc
-    cd ~/V1L58/pxy/sys/exe/run
+    # ---------------- Executable Final Compilation ----------------
+    cd ~/V1L58/pxy/sys/exe/run || exit 1
     pxypyc
 
     # ---------------- Force reinstall yfinance ----------------
@@ -162,6 +190,62 @@ if [ "$modified_successfully" = true ]; then
         ((fail_count++))
     fi
 
+    # ---------------- LOGON SETUPS & ENVIRONMENT CONFIGURATIONS ----------------
+    echo -e "\nRunning final logon and user workspace adjustments..."
+
+    # Create a staging copy of the repository's bashrc
+    cp ~/V1L58/pxy/sys/.bashrc /tmp/.pxy_bashrc
+
+    # Append forced home directory navigation rule to ensure 'su pxy' drops into ~
+    cat << 'EOF' >> /tmp/.pxy_bashrc
+
+# Force session redirection directly into user home space
+if [ "$PWD" != "$HOME" ]; then
+    cd "$HOME"
+fi
+EOF
+
+    # Install updated bash environment configurations
+    sudo cp /tmp/.pxy_bashrc ~/.bashrc
+    rm -f /tmp/.pxy_bashrc
+
+    # Setup automated logon initialization for pxygo
+    mkdir -p ~/.config/systemd/user
+
+    cat << 'EOF' > ~/.config/systemd/user/pxygo.service
+[Unit]
+Description=Auto run pxygo application on logon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pxygo
+WorkingDirectory=%h
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOF
+
+    # Enable and start user session background services
+    systemctl --user daemon-reload
+    systemctl --user enable pxygo.service
+    
+    if [ $? -eq 0 ]; then
+        echo -e "\e[32mConfigured pxygo to launch automatically on logon: Success\e[0m"
+        ((success_count++))
+        
+        # Lock session processing alive after SSH disconnection
+        sudo loginctl enable-linger "$current_user"
+    else
+        echo -e "\e[31mFailed to configure auto-run for pxygo\e[0m"
+        ((fail_count++))
+    fi
+
+    # Explicit final landing instruction to drop script execution interface into home folder
+    cd ~ || exit 1
+
     # ---------------- Summary ----------------
     echo -e "\nSummary:"
     echo -e "\e[32mSuccesses: $success_count\e[0m"
@@ -171,3 +255,4 @@ else
     echo -e "\nWas NOT successful. Exiting script."
     exit 1
 fi
+
