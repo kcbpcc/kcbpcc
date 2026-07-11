@@ -199,50 +199,32 @@ if [ "$modified_successfully" = true ]; then
     # Create a staging copy of the repository's bashrc
     cp ~/V1L58/pxy/sys/.bashrc /tmp/.pxy_bashrc
 
-    # Append forced home directory navigation rule to ensure 'su pxy' drops into ~
+    # Append configurations directly into the staged bashrc file
     cat << 'EOF' >> /tmp/.pxy_bashrc
 
 # Force session redirection directly into user home space
 if [ "$PWD" != "$HOME" ]; then
     cd "$HOME"
 fi
+
+# Run pxygo EXACTLY ONCE per boot session
+if [ ! -f "/dev/shm/pxygo_boot_done" ]; then
+    if command -v pxygo >/dev/null 2>&1; then
+        pxygo &
+        touch "/dev/shm/pxygo_boot_done"
+    fi
+fi
 EOF
 
-    # Install updated bash environment configurations
+    # Install updated bash environment configurations directly over the old one
     sudo cp /tmp/.pxy_bashrc ~/.bashrc
     rm -f /tmp/.pxy_bashrc
 
-    # Setup automated logon initialization for pxygo
-    mkdir -p ~/.config/systemd/user
-
-    cat << 'EOF' > ~/.config/systemd/user/pxygo.service
-[Unit]
-Description=Auto run pxygo application on logon
-After=network.target
-
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/pxygo
-WorkingDirectory=%h
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=default.target
-EOF
-
-    # Enable and start user session background services
-    systemctl --user daemon-reload
-    systemctl --user enable pxygo.service
-    
     if [ $? -eq 0 ]; then
-        echo -e "\e[32mConfigured pxygo to launch automatically on logon: Success\e[0m"
+        echo -e "\e[32mConfigured pxygo execution via .bashrc: Success\e[0m"
         ((success_count++))
-        
-        # Lock session processing alive after SSH disconnection
-        sudo loginctl enable-linger "$current_user"
     else
-        echo -e "\e[31mFailed to configure auto-run for pxygo\e[0m"
+        echo -e "\e[31mFailed to configure auto-run updates in .bashrc\e[0m"
         ((fail_count++))
     fi
 
