@@ -99,17 +99,20 @@ if [ "$modified_successfully" = true ]; then
     echo -e "\nSetting up Node.js project environment..."
     if [ -d ~/V1L58/pxy ]; then
         cd ~/V1L58/pxy || exit 1
-        if [ -f "package.json" ]; then
+        
+        # Check for pxy.json and copy it to package.json so npm works out of the box
+        if [ -f "pxy.json" ]; then
+            cp pxy.json package.json
             npm install
             if [ $? -eq 0 ]; then
-                echo -e "\e[32mNode.js dependencies installed successfully\e[0m"
+                echo -e "\e[32mNode.js dependencies (express, ws) installed successfully\e[0m"
                 ((success_count++))
             else
                 echo -e "\e[31mFailed to install Node.js dependencies\e[0m"
                 ((fail_count++))
             fi
         else
-            echo -e "\e[33mWarning: package.json not found in ~/V1L58/pxy. Skipping npm install.\e[0m"
+            echo -e "\e[33mWarning: pxy.json not found in ~/V1L58/pxy. Skipping npm install.\e[0m"
         fi
         cd ~ || exit 1
     fi
@@ -255,4 +258,3 @@ else
     echo -e "\nWas NOT successful. Exiting script."
     exit 1
 fi
-
