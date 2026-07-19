@@ -2,27 +2,27 @@
 
 # ---------------- Hushlogin & Symlink ----------------
 touch ~/.hushlogin
-sudo ln -s V1L58/pxy pxy
+sudo ln -s PRD/pxy pxy
 
 # ---------------- Initialize summary variables ----------------
 success_count=0
 fail_count=0
 
 # ---------------- Confirm Removal ----------------
-read -p "Are you sure you want to remove ~/V1L58/pxy? (y/n): " confirm
+read -p "Are you sure you want to remove ~/PRD/pxy? (y/n): " confirm
 if [ "$confirm" = "y" ]; then
-    if [ -d ~/V1L58/pxy ]; then
-        sudo rm -rf ~/V1L58/pxy
+    if [ -d ~/PRD/pxy ]; then
+        sudo rm -rf ~/PRD/pxy
         if [ $? -eq 0 ]; then
-            echo -e "\e[32mRemoved ~/V1L58/pxy: Success\e[0m"
+            echo -e "\e[32mRemoved ~/PRD/pxy: Success\e[0m"
             ((success_count++))
         else
-            echo -e "\e[31mFailed to remove ~/V1L58/pxy\e[0m"
+            echo -e "\e[31mFailed to remove ~/PRD/pxy\e[0m"
             ((fail_count++))
             exit 1
         fi
     else
-        echo "Directory ~/V1L58/pxy not found, moving on."
+        echo "Directory ~/PRD/pxy not found, moving on."
     fi
 
     sudo rm -rf /usr/local/bin/pxy*
@@ -82,7 +82,7 @@ if [ "$modified_successfully" = true ]; then
         exit 0
     fi
 
-    git clone git@github.com:kcbpcc/V1L58.git
+    git clone git@github.com:kcbpcc/PRD.git
     if [ $? -eq 0 ]; then
         echo -e "\e[32mCloned pxy repository successfully\e[0m"
         ((success_count++))
@@ -92,13 +92,13 @@ if [ "$modified_successfully" = true ]; then
         exit 1
     fi
 
-    sudo chmod -R 777 ~/V1L58/pxy
+    sudo chmod -R 777 ~/PRD/pxy
     ((success_count++))
 
     # ---------------- Node.js Dependencies & Port Permissions ----------------
     echo -e "\nSetting up Node.js project environment..."
-    if [ -d ~/V1L58/pxy ]; then
-        cd ~/V1L58/pxy || exit 1
+    if [ -d ~/PRD/pxy ]; then
+        cd ~/PRD/pxy || exit 1
         
         # Check for pxy.json and copy it to package.json so npm works out of the box
         if [ -f "pxy.json" ]; then
@@ -112,7 +112,7 @@ if [ "$modified_successfully" = true ]; then
                 ((fail_count++))
             fi
         else
-            echo -e "\e[33mWarning: pxy.json not found in ~/V1L58/pxy. Skipping npm install.\e[0m"
+            echo -e "\e[33mWarning: pxy.json not found in ~/PRD/pxy. Skipping npm install.\e[0m"
         fi
         cd ~ || exit 1
     fi
@@ -128,12 +128,12 @@ if [ "$modified_successfully" = true ]; then
     fi
 
     # ---------------- Copy executables to /usr/local/bin ----------------
-    if [ -d ~/V1L58/pxy/sys/p ]; then
-        sudo cp -r ~/V1L58/pxy/sys/p/* /usr/local/bin/
+    if [ -d ~/PRD/pxy/sys/p ]; then
+        sudo cp -r ~/PRD/pxy/sys/p/* /usr/local/bin/
     fi
 
     copied_any=false
-    for file in ~/V1L58/pxy/*; do
+    for file in ~/PRD/pxy/*; do
         if [ -f "$file" ] && [[ "$file" != *.* ]]; then
             sudo cp "$file" /usr/local/bin/
             copied_any=true
@@ -155,7 +155,7 @@ if [ "$modified_successfully" = true ]; then
     pip install --upgrade pip
 
     # ---------------- Install Python Dependencies ----------------
-    REQUIREMENTS=~/V1L58/pxy/pxyinstl
+    REQUIREMENTS=~/PRD/pxy/pxyinstl
     if [ -f "$REQUIREMENTS" ]; then
         pip install -r "$REQUIREMENTS"
         if [ $? -eq 0 ]; then
@@ -171,7 +171,7 @@ if [ "$modified_successfully" = true ]; then
     fi
 
     # ---------------- Executable Final Compilation ----------------
-    cd ~/V1L58/pxy/sys/exe/run || exit 1
+    cd ~/PRD/pxy/sys/exe/run || exit 1
     pxypyc
 
     # ---------------- Force reinstall yfinance ----------------
@@ -197,7 +197,7 @@ if [ "$modified_successfully" = true ]; then
     echo -e "\nRunning final logon and user workspace adjustments..."
 
     # Create a staging copy of the repository's bashrc
-    cp ~/V1L58/pxy/sys/.bashrc /tmp/.pxy_bashrc
+    cp ~/PRD/pxy/sys/.bashrc /tmp/.pxy_bashrc
 
     # Append configurations directly into the staged bashrc file
     cat << 'EOF' >> /tmp/.pxy_bashrc
